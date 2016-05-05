@@ -16,6 +16,29 @@ Then generate your new project:
 yo layaair
 ```
 
+## Usage:
+
+develop mode:
+```bash
+npm run debug
+```
+or
+```bash
+gulp debug
+```
+  
+  
+publish your app:
+```bash
+npm run publish
+```
+or
+```bash
+gulp publish
+```  
+then your app will be released at ./dist/release
+
+
 ## Getting To Know Yeoman
 
  * Yeoman has a heart of gold.
