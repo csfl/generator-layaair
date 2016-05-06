@@ -14,6 +14,9 @@ var cheerio = require('cheerio');
 var debug = process.argv.length > 2 && process.argv[2] == 'debug';
 
 var getDistPath = function() {
+	if( !debug && config.publishPath ) {
+		return config.publishPath;
+	}
 	return 'dist/' + ( debug ? 'debug' : 'release' )
 }
 
@@ -59,7 +62,7 @@ var getBuildDeps = function() {
 }
 
 gulp.task('clean-dist',function(){
-	return gulp.src( getDistPath() + '/*', {read: false})
+	return gulp.src( getDistPath() + '/**/*', {read: false})
 		.pipe(clean());
 })
 
