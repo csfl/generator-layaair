@@ -38,6 +38,7 @@ module.exports = yeoman.Base.extend({
 	},
 
 	writing: function () {
+		console.log('   generating config.js')
 		this.fs.write(this.destinationPath('config.js'),
 			"module.exports = {\n" +
 			"\tenableTypings: false,\n" +
@@ -46,18 +47,21 @@ module.exports = yeoman.Base.extend({
 			"}"
 		)
 
+		console.log('   generating package.json')
 		var packageinfo = this.fs.readJSON( this.templatePath('package.json') );
 		packageinfo.name = this.props.name;
 		this.fs.extendJSON( 'package.json',	packageinfo, null, '\t' )
 
+		console.log('   copying other config files')
 		var rootfiles = ['gulpfile.js','tsconfig.json','typings.json'];
 		for( var i = 0 ; i < rootfiles.length ; i++ ) {
 			this.fs.copy( this.templatePath(rootfiles[i]), this.destinationPath(rootfiles[i]) );
 		}
 		if( parseInt(this.props.engineversion.split('.') ) >= 1 ) {
-			this.fs.copy( this.templatePath('tsconfig.v1.json'), this.destinationPath(rootfiles[i]) );
+			this.fs.copy( this.templatePath('tsconfig.v1.json'), this.destinationPath('tsconfig.json') );
 		}
 
+		console.log('   copying LayaAir files')
 		var subDirs = ['res','src','template','laya/' + this.props.engineversion ];
 		for( var i = 0 ; i < subDirs.length ; i++ ) {
 			this.fs.copy( this.templatePath( subDirs[i] + '/**' ), this.destinationPath( subDirs[i] )	);
@@ -65,6 +69,6 @@ module.exports = yeoman.Base.extend({
 	},
 
 	install: function () {
-		this.npmInstall()
+		//this.npmInstall()
 	}
 });
