@@ -10,6 +10,7 @@ var browserSync = require('browser-sync').create();
 var clean = require('gulp-clean');
 var uglify = require('gulp-uglify');
 var cheerio = require('cheerio');
+var colors = require('colors')
 
 var debug = process.argv.length > 2 && process.argv[2] == 'debug';
 
@@ -37,16 +38,51 @@ var walkAsync = function(walkpath) {
 	})
 }
 
-var runCommand = function( cmdline ) {
-	return child_process
-		.execAsync(cmdline)
-		.then(function(content){
-			console.log( 'run$ ' + cmdline )
-			if( content != "" ) {
-				console.log( content )
+var runCommand = function( cmdline, options ) {
+	console.log( 'run$ '.blue + cmdline )
+	var p = child_process.exec( cmdline )
+	return new Promise( function( resolve, reject ){
+		if( !p ) {
+			reject();
+			return;
+		}
+		var OnExit = function() {
+			if( options.stdout ) {
+				fs.close(options.stdout)
 			}
-			return new Promise( function(resolve){resolve();} );
+			if( options.stderr ) {
+				fs.close(options.stderr)
+			}
+		}
+		p.stdout.on('data',function(data){
+			console.log(data)
+			if( options.stdout ) {
+				fs.write( options.stdout, data );
+			}
 		})
+		p.stderr.on('data',function(data){
+			console.log(data)
+			if( options.stderr ) {
+				fs.write( options.stderr, data );
+			}
+			else if( options.stdout ) {
+				fs.write( options.stdout, data );
+			}
+		})
+		p.on('exit',function(n){
+			OnExit();
+			if( n == 0 ) {
+				resolve();
+			}
+			else {
+				reject('command '+'failed'.red +' with return '+(""+n).green);
+			}
+		})
+		p.on('error',function(e){
+			OnExit();
+			reject(e);
+		})
+	});
 }
 
 var getBuildDeps = function() {
@@ -105,7 +141,11 @@ gulp.task('build-src', getBuildDeps(), function(){
 	else {
 		cmdline += ' --sourceMap';
 	}
-	return runCommand( cmdline )
+	return fs.openAsync('build.log','a').then( function(fd) {
+		return runCommand( cmdline,{ stdout: fd });
+	}).catch(function(err){
+		console.log(err);
+	})
 })
 
 gulp.task('copy-res',['clean-dist'],function(){
@@ -163,3 +203,6 @@ gulp.task('publish',['build-page','uglify-page'])
 
 gulp.task('default',['build-page'])
 
+gulp.task('tt1',function(){
+	return runCommand( 'tsc --outDir dist/release --outFile dist\release\src\app.js' );
+})

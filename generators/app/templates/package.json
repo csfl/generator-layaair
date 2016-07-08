@@ -1,5 +1,5 @@
 {
-  "name": "laya-template",
+  "name": "aaa",
   "version": "0.0.1",
   "author": "",
   "private": true,
@@ -8,6 +8,7 @@
     "bluebird": "^3.3.5",
     "browser-sync": "^2.12.5",
     "cheerio": "^0.20.0",
+    "colors": "^1.1.2",
     "gulp": "^3.9.1",
     "gulp-clean": "^0.3.2",
     "gulp-uglify": "^1.5.3",
