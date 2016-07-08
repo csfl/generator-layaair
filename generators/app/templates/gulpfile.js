@@ -121,6 +121,11 @@ gulp.task('build-tsconfig',function(){
 		tsConfigData.files = [
 			"laya/" + config.layaVersion + "/libs/LayaAir.d.ts"
 		]
+		if( parseInt(config.layaVersion.split('.')[0]) >= 1 ) {
+			tsConfigData.files = [
+				"laya/" + config.layaVersion + "/LayaAir.d.ts"
+			]
+		}
 		if( config.enableTypings ) {
 			tsConfigData.files.push('typings/main.d.ts')
 		}

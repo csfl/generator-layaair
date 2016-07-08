@@ -27,7 +27,7 @@ module.exports = yeoman.Base.extend({
 		},{
 			type: 'list',
 			name: 'engineversion',
-			choices: [ '0.9.9','0.9.8', '0.9.7' ],
+			choices: [ '1.0.0','0.9.9','0.9.8', '0.9.7' ],
 			message: 'Which version of LayaAir would you like to use ?'
 		}];
 		
@@ -53,6 +53,9 @@ module.exports = yeoman.Base.extend({
 		var rootfiles = ['gulpfile.js','tsconfig.json','typings.json'];
 		for( var i = 0 ; i < rootfiles.length ; i++ ) {
 			this.fs.copy( this.templatePath(rootfiles[i]), this.destinationPath(rootfiles[i]) );
+		}
+		if( parseInt(this.props.engineversion.split('.') ) >= 1 ) {
+			this.fs.copy( this.templatePath('tsconfig.v1.json'), this.destinationPath(rootfiles[i]) );
 		}
 
 		var subDirs = ['res','src','template','laya/' + this.props.engineversion ];
