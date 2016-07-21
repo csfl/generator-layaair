@@ -27,7 +27,7 @@ module.exports = yeoman.Base.extend({
 		},{
 			type: 'list',
 			name: 'engineversion',
-			choices: [ '1.0.0','0.9.9','0.9.8', '0.9.7' ],
+			choices: [ '1.0.2','1.0.0','0.9.9','0.9.8', '0.9.7' ],
 			message: 'Which version of LayaAir would you like to use ?'
 		}];
 		
@@ -69,6 +69,6 @@ module.exports = yeoman.Base.extend({
 	},
 
 	install: function () {
-		//this.npmInstall()
+		this.npmInstall()
 	}
 });
