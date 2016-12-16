@@ -1,23 +1,27 @@
 {
-  "name": "aaa",
-  "version": "0.0.1",
-  "author": "",
-  "private": true,
-  "dependencies": {},
-  "devDependencies": {
-    "bluebird": "^3.3.5",
-    "browser-sync": "^2.12.5",
-    "cheerio": "^0.20.0",
-    "colors": "^1.1.2",
-    "gulp": "^3.9.1",
-    "gulp-clean": "^0.3.2",
-    "gulp-uglify": "^1.5.3",
-    "jquery": "^2.2.3",
-    "typescript": "^1.8.10",
-    "walk": "^2.3.9"
-  },
-  "scripts": {
-    "debug": "gulp debug",
-    "publish": "gulp publish"
-  }
+	"name": "t1",
+	"version": "0.0.1",
+	"author": "",
+	"private": true,
+	"dependencies": {},
+	"devDependencies": {
+		"bluebird": "^3.3.5",
+		"browser-sync": "^2.12.5",
+		"cheerio": "^0.20.0",
+		"colors": "^1.1.2",
+		"gulp": "^3.9.1",
+		"gulp-clean": "^0.3.2",
+		"gulp-uglify": "^1.5.3",
+		"jquery": "^2.2.3",
+		"typescript": "^1.8.10",
+		"walk": "^2.3.9",
+		"request": "~2.78.0",
+		"co": "~4.6.0",
+		"fetch": "~1.1.0"
+	},
+	"scripts": {
+		"debug": "gulp debug",
+		"publish": "gulp publish",
+		"postinstall": "node ./scripts/postinstall.js"
+	}
 }

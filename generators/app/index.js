@@ -25,10 +25,10 @@ module.exports = yeoman.Base.extend({
 			choices: [ 'typescript' ],
 			message: 'Which language would you like to use ?'
 		},{
-			type: 'list',
+			type: 'input',
 			name: 'engineversion',
-			choices: [ '1.0.2','1.0.0','0.9.9','0.9.8', '0.9.7' ],
-			message: 'Which version of LayaAir would you like to use ?'
+			message: 'what version of LayaAir would you like to use ?',
+			default: '1.5.4'
 		}];
 		
 		this.prompt(prompts, function (props) {
@@ -57,12 +57,13 @@ module.exports = yeoman.Base.extend({
 		for( var i = 0 ; i < rootfiles.length ; i++ ) {
 			this.fs.copy( this.templatePath(rootfiles[i]), this.destinationPath(rootfiles[i]) );
 		}
+
 		if( parseInt(this.props.engineversion.split('.') ) >= 1 ) {
 			this.fs.copy( this.templatePath('tsconfig.v1.json'), this.destinationPath('tsconfig.json') );
 		}
 
-		console.log('   copying LayaAir files')
-		var subDirs = ['res','src','template','laya/' + this.props.engineversion ];
+		console.log('   copying template files')
+		var subDirs = [ 'res','src','template', 'scripts' ];
 		for( var i = 0 ; i < subDirs.length ; i++ ) {
 			this.fs.copy( this.templatePath( subDirs[i] + '/**' ), this.destinationPath( subDirs[i] )	);
 		}

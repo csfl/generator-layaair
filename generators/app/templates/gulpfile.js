@@ -103,7 +103,7 @@ gulp.task('clean-dist',function(){
 })
 
 gulp.task('build-laya', ['clean-dist'], function(){
-	var files = config.layaModules.map(function(elem){ return 'laya/' + config.layaVersion + '/libs/laya.' + elem + '.js' })
+	var files = config.layaModules.map(function(elem){ return 'laya/' + config.layaVersion + '/ts/libs/laya.' + elem + '.js' })
 	return gulp.src(files)
 		.pipe( gulp.dest( path.join( getDistPath(),'libs' ) ) )
 })
@@ -118,14 +118,7 @@ gulp.task('install-3rd',function(){
 gulp.task('build-tsconfig',function(){
 	return Promise.join( walkAsync('src'), fs.readFileAsync('tsconfig.json'), function(files,data){
 		tsConfigData = JSON.parse(data);
-		tsConfigData.files = [
-			"laya/" + config.layaVersion + "/libs/LayaAir.d.ts"
-		]
-		if( parseInt(config.layaVersion.split('.')[0]) >= 1 ) {
-			tsConfigData.files = [
-				"laya/" + config.layaVersion + "/LayaAir.d.ts"
-			]
-		}
+		tsConfigData.files = [ "laya/" + config.layaVersion + "/ts/LayaAir.d.ts" ]
 		if( config.enableTypings ) {
 			tsConfigData.files.push('typings/main.d.ts')
 		}
@@ -134,7 +127,7 @@ gulp.task('build-tsconfig',function(){
 				tsConfigData.files.push(path.normalize(elem).replace(/\\/g,'/'));
 			}
 		})
-		return fs.writeFileAsync('tsconfig.json',JSON.stringify(tsConfigData,null,'\t'))
+		return fs.writeFileAsync('tsconfig.json',JSON.stringify(tsConfigData,null,'  '))
 	})
 })
 
@@ -190,7 +183,7 @@ gulp.task('debug', ['build-page'], function() {
 			baseDir: [ getDistPath(), 'res' ],
 			routes: {
 				"/src": "src",
-				"/libs": "laya/" + config.layaVersion + "/libs"
+				"/libs": "laya/" + config.layaVersion + "/ts/libs"
 			}
 		}
 	});
