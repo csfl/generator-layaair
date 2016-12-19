@@ -4,16 +4,28 @@ var chalk = require('chalk');
 var yosay = require('yosay');
 var path = require('path');
 
+var Promise = require('bluebird');
+var fetch = require('fetch');
+var cheerio = require('cheerio');
+
+var fetchdata = function( url ) {
+	return new Promise(function(resolve,reject){
+		fetch.fetchUrl( url, function(err,header,data){
+			if( err ) {
+				reject(err);
+			}
+			resolve(data);
+		})
+	})
+}
+
 module.exports = yeoman.Base.extend({
 
 	prompting: function () {
+		var self = this;
 		var done = this.async();
-		this.log(yosay(
-			'Welcome to ' + chalk.red('LayaAir') + ' generator!'
-		));
-		
-		var dirname = path.relative( process.cwd(), path.basename( process.cwd() ) )
 
+		var dirname = path.relative( process.cwd(), path.basename( process.cwd() ) )
 		var prompts = [{
 			type: 'input',
 			name: 'name',
@@ -25,16 +37,30 @@ module.exports = yeoman.Base.extend({
 			choices: [ 'typescript' ],
 			message: 'Which language would you like to use ?'
 		},{
-			type: 'input',
+			type: 'list',
 			name: 'engineversion',
 			message: 'what version of LayaAir would you like to use ?',
-			default: '1.5.4'
+			choices: []
 		}];
-		
-		this.prompt(prompts, function (props) {
-			this.props = props;
-			done();
-		}.bind(this));
+
+		this.log(yosay(
+			'Welcome to ' + chalk.red('LayaAir') + ' generator!'
+		));
+
+		fetchdata('http://ldc.layabox.com/index.php?m=content&c=index&a=lists&catid=28')
+		.then(function(data){
+			var $ = cheerio.load(data)
+			$('.version-list .version').map(function(i){return $(this).text()}).get().forEach(function(item){
+				if( item.match(/^\d+\.\d+\.\d+$/) ) {
+					prompts[2].choices.push(item)
+				}
+			})
+			self.prompt(prompts, function (props) {
+				this.props = props;
+				done();
+			}.bind(self));
+		})
+
 	},
 
 	writing: function () {

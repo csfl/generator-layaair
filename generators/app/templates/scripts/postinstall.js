@@ -9,16 +9,51 @@ var unzip = require('unzip');
 var fetchfile = function( url, localpath ) {
 	return new Promise(function(resolve,reject){
 		(new fetch.FetchStream(url))
-		.pipe(unzip.Extract({ path: localpath }))
-		.on('finish',function(){
+		.pipe(fs.createWriteStream(localpath))
+		.on('close',function(){
+			resolve();
+		})
+		.on('error',function(err){
+			reject(err);
+		})
+	})
+}
+
+var uncompress = function( fname, dest ) {
+	return new Promise( function( resolve, reject ){
+		fs.createReadStream(fname)
+			.pipe(unzip.Extract({ path: dest }))
+			.on('finish',function(){
+				resolve();
+			})
+			.on('error',function(err){
+				reject(err);
+			})
+	})
+}
+
+var makeDirAsync = function( dirname ) {
+	return new Promise( function(resolve,reject){
+		fs.stat( dirname, function(err){
+			if( err ) {
+				fs.mkdir( dirname, function(err2){
+					if( err2 ) {
+						reject(err2);
+					}
+					resolve();
+				})
+			}
 			resolve();
 		})
 	})
 }
 
 co(function* () {
+	yield makeDirAsync('./laya');
+	yield makeDirAsync('./laya/tmp');
 	console.log( 'fetching laya engine ' + config.layaVersion + '.' )
-	yield fetchfile('http://ldc.layabox.com/download/LayaAirTS_'+ config.layaVersion + '.zip','./laya/' + config.layaVersion )
+	yield fetchfile('http://ldc.layabox.com/download/LayaAirTS_'+ config.layaVersion + '.zip', './laya/tmp/' + config.layaVersion + '.zip' );
+	yield uncompress( './laya/tmp/' + config.layaVersion + '.zip', './laya/' + config.layaVersion )
 	console.log( 'done.' )
 
 	console.log( 'configuring tsconfig.json.' )
@@ -28,7 +63,6 @@ co(function* () {
 			tsconfig.files[i] = 'laya/' + config.layaVersion + '/ts/LayaAir.d.ts';
 		}
 	}
-	console.log( tsconfig )
 	yield fs.writeFileAsync( 'tsconfig.json', JSON.stringify( tsconfig, null, '  ' ) )
 	console.log( 'done.' )
 
