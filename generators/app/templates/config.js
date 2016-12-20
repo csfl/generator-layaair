@@ -1,5 +1,5 @@
 module.exports = {
 	enableTypings: false,
-	layaModules: ['core','webgl','html'/*,'plugins','ani','filters','particle','ui'*/],
+	layaModules: ['laya.core','laya.webgl','laya.html'/*,'laya.plugins','laya.ani','laya.filters','laya.particle','laya.ui'*/],
 	layaVersion: '1.5.4'
 }

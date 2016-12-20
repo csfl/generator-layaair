@@ -103,7 +103,9 @@ gulp.task('clean-dist',function(){
 })
 
 gulp.task('build-laya', ['clean-dist'], function(){
-	var files = config.layaModules.map(function(elem){ return 'laya/' + config.layaVersion + '/ts/libs/laya.' + elem + '.js' })
+	var files = config.layaModules.map(function(elem){
+		return 'laya/' + config.layaVersion + '/ts/libs/' + elem + '.js'
+	})
 	return gulp.src(files)
 		.pipe( gulp.dest( path.join( getDistPath(),'libs' ) ) )
 })
@@ -154,7 +156,7 @@ gulp.task('copy-res',['clean-dist'],function(){
 gulp.task('build-page', ['build-src'], function(){
 	$ = cheerio.load(fs.readFileSync('template/index.html'))
 	config.layaModules.forEach(function(elem){
-		$('body').append('<script src="libs/laya.' + elem + '.js" language="JavaScript"></script>\n')
+		$('body').append('<script src="libs/' + elem + '.js" language="JavaScript"></script>\n')
 	})
 	var srcPath = path.join( getDistPath(), 'src' );
 	return walkAsync(srcPath)
