@@ -34,7 +34,7 @@ module.exports = yeoman.Base.extend({
 		},{
 			type: 'list',
 			name: 'language',
-			choices: [ 'typescript' ],
+			choices: [ 'typescript', 'javascript' ],
 			message: 'Which language would you like to use ?'
 		},{
 			type: 'list',
@@ -68,34 +68,49 @@ module.exports = yeoman.Base.extend({
 		this.fs.write(this.destinationPath('config.js'),
 			"module.exports = {\n" +
 			"\tenableTypings: false,\n" +
-			"\tlayaModules: ['core','webgl','html'/*,'plugins','ani','filters','particle','ui'*/],\n" +
+			"\tlayaModules: ['laya.core','laya.webgl','laya.html'/*,'laya.plugins','laya.ani','laya.filters','laya.particle','laya.ui'*/],\n" +
 			"\tlayaVersion: '" + this.props.engineversion + "'\n" +
 			"}"
 		)
 
-		console.log('   generating package.json')
-		var packageinfo = this.fs.readJSON( this.templatePath('package.json') );
-		packageinfo.name = this.props.name;
-		this.fs.extendJSON( 'package.json',	packageinfo, null, '\t' )
+		if( this.props.language == 'typescript' ) {
+			console.log('   generating package.json')
+			var packageinfo = this.fs.readJSON( this.templatePath('tsfiles/package.json') );
+			packageinfo.name = this.props.name;
+			this.fs.extendJSON( 'package.json',	packageinfo, null, '\t' )
+			
+			console.log('   copying other config files')
+			var rootfiles = ['gulpfile.js','tsconfig.json','typings.json'];
+			for( var i = 0 ; i < rootfiles.length ; i++ ) {
+				this.fs.copy( this.templatePath( 'tsfiles/' + rootfiles[i]), this.destinationPath(rootfiles[i]) );
+			}
 
-		console.log('   copying other config files')
-		var rootfiles = ['gulpfile.js','tsconfig.json','typings.json'];
-		for( var i = 0 ; i < rootfiles.length ; i++ ) {
-			this.fs.copy( this.templatePath(rootfiles[i]), this.destinationPath(rootfiles[i]) );
+			console.log('   copying template files')
+			var subDirs = [ 'res','tsfiles/src','template', 'tsfiles/scripts' ];
+			for( var i = 0 ; i < subDirs.length ; i++ ) {
+				this.fs.copy( this.templatePath( subDirs[i] + '/**' ), this.destinationPath( subDirs[i].replace('tsfiles/','') )	);
+			}
 		}
+		else if( this.props.language == 'javascript' ) {
+			console.log('   generating package.json')
+			var packageinfo = this.fs.readJSON( this.templatePath('jsfiles/package.json') );
+			packageinfo.name = this.props.name;
+			this.fs.extendJSON( 'package.json',	packageinfo, null, '\t' )
 
-		if( parseInt(this.props.engineversion.split('.') ) >= 1 ) {
-			this.fs.copy( this.templatePath('tsconfig.v1.json'), this.destinationPath('tsconfig.json') );
-		}
+			console.log('   copying other config files')
+			var rootfiles = ['gulpfile.js','webpack.config.js','readme.txt'];
+			for( var i = 0 ; i < rootfiles.length ; i++ ) {
+				this.fs.copy( this.templatePath( 'jsfiles/' + rootfiles[i]), this.destinationPath(rootfiles[i]) );
+			}
 
-		console.log('   copying template files')
-		var subDirs = [ 'res','src','template', 'scripts' ];
-		for( var i = 0 ; i < subDirs.length ; i++ ) {
-			this.fs.copy( this.templatePath( subDirs[i] + '/**' ), this.destinationPath( subDirs[i] )	);
+			console.log('   copying template files')
+			var subDirs = [ 'res','jsfiles/src','template', 'jsfiles/scripts' ];
+			for( var i = 0 ; i < subDirs.length ; i++ ) {
+				this.fs.copy( this.templatePath( subDirs[i] + '/**' ), this.destinationPath( subDirs[i].replace('jsfiles/','') )	);
+			}
 		}
 	},
 
 	install: function () {
-		this.npmInstall()
 	}
 });
