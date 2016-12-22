@@ -5,14 +5,16 @@ import Loader = laya.net.Loader;
 import Sprite = laya.display.Sprite;
 import display  = laya.display;
 
+import { AppInfo } from './config';
+
 class Main extends laya.display.Sprite {
 	constructor() {
 		super();
-		Laya.loader.load("monkey.png", Handler.create(this, this.onResDone) );
+		Laya.loader.load("res/monkey.png", Handler.create(this, this.onResDone) );
 	}
 	
 	onResDone():void {
-		var pic1: Texture = Loader.getRes("monkey.png");
+		var pic1: Texture = Loader.getRes("res/monkey.png");
 		this.graphics.drawTexture(pic1,0,0);
 
 		var txt:display.Text = new display.Text();
@@ -26,6 +28,9 @@ class Main extends laya.display.Sprite {
 		this.addChild(txt);
 	}
 }
+
+let info:AppInfo = new AppInfo();
+console.log(info);
 
 Laya.init(640,1066);
 Laya.stage.scaleMode = 'fixedwidth'

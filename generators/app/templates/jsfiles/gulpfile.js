@@ -10,21 +10,55 @@ var uglify = require('gulp-uglify');
 var cheerio = require('cheerio');
 var colors = require('colors');
 var webpack = require('gulp-webpack');
-var webpackConfig = require('./webpack.config')
+var webpackConfig = require('./webpack.config');
+var utils = require('./scripts/utils');
+
+var safeWriteFileAsync = function(fname,data){
+	return utils.mkdirAsync(path.dirname(fname))
+		.then(function(){
+			return fs.writeFileAsync(fname,data)
+		})
+}
 
 var debug = process.argv.length > 2 && process.argv[2] == 'debug';
 var distPath = !debug && config.publishPath ? config.publishPath : 'dist/' + ( debug ? 'debug' : 'release' );
 
-gulp.task('clean-dist',function(){
-	return gulp.src( distPath + '/**/*', {read: false})
+gulp.task('clean',function(){
+	return gulp.src('dist/**')
 		.pipe(clean());
 })
 
-gulp.task('copy-laya',function(){
-	return gulp.src('laya/'+config.layaVersion+'/js/libs/*.js').pipe( gulp.dest( path.join(distPath,'laya-'+config.layaVersion) ) )
+gulp.task('clean-dist',function(){
+	return gulp.src( path.join( distPath , '**' ) )
+		.pipe(clean());
 })
 
-gulp.task('build-src',function(){
+gulp.task('clean-laya',function(){
+	return gulp.src( path.join( distPath , 'laya-*' ))
+		.pipe(clean());
+})
+
+gulp.task('build-laya', ['clean-laya'], function(){
+	return gulp.src('laya/'+config.layaVersion+'/js/libs/*.js')
+		.pipe( gulp.dest( path.join(distPath,'laya-'+config.layaVersion) ) )
+})
+
+gulp.task('clean-res',function(){
+	return gulp.src( path.join( distPath , 'res' ))
+		.pipe(clean());
+})
+
+gulp.task('build-res', ['clean-res'], function(){
+	return gulp.src('res/**')
+		.pipe( gulp.dest( path.join( distPath, 'res' ) ) )
+})
+
+gulp.task('clean-src',function(){
+	return gulp.src([ path.join( distPath , 'assets' ), path.join( distPath, 'index.html' ) ])
+		.pipe(clean());
+})
+
+gulp.task('build-src', ['clean-src'], function(){
 	var outputPath = webpackConfig.output.path;
 	webpackConfig.output.path = null;
 	if( debug ) {
@@ -37,12 +71,7 @@ gulp.task('build-src',function(){
 	.pipe(gulp.dest(outputPath));
 })
 
-gulp.task('copy-readme',function(){
-	return gulp.src('readme.txt')
-		.pipe(gulp.dest(distPath))
-})
-
-gulp.task('fix-html', [ 'copy-readme' ], function(){
+gulp.task('build-page', ['build-src'], function(){
 	return fs.readFileAsync('template/index.html')
 		.then(function(data){
 			var $ = cheerio.load(data)
@@ -50,16 +79,15 @@ gulp.task('fix-html', [ 'copy-readme' ], function(){
 				$('body').append('<script src="laya-'+ config.layaVersion + '/' + item + '.js" language="JavaScript"></script>\n')
 			})
 			$('body').append('<script src="assets/app.js" language="JavaScript"></script>\n')
-			return fs.writeFileAsync( path.join(distPath,'index.html'),$.html());
+			return safeWriteFileAsync( path.join(distPath,'index.html'),$.html());
 		})
 })
 
-gulp.task('build', ['copy-laya','fix-html','build-src'], function(){
-	return gulp.src('res/**')
-		.pipe(gulp.dest(path.join(distPath,'res')))
+gulp.task('debug-reload',['build-page'],function(){
+	browserSync.reload();
 })
 
-gulp.task('debug', ['fix-html','build-src'], function(){
+gulp.task('debug', ['build-page'], function(){
 	var bsConfig = {
 		server:  {
 			baseDir: [ distPath ],
@@ -69,6 +97,17 @@ gulp.task('debug', ['fix-html','build-src'], function(){
 	bsConfig.server.routes[ '/laya-'+ config.layaVersion ] = './laya/' + config.layaVersion + '/js/libs'
 	browserSync.init(bsConfig);
 	gulp.watch('res/*',browserSync.reload)
-	gulp.watch('src/*.js',['build-src'])
-	gulp.watch('config.js',['build-src'])
+	gulp.watch('src/*.js',['debug-reload'])
+	gulp.watch('config.js',['debug-reload'])
+	gulp.watch('template/index.html',['debug-reload'])
 })
+
+gulp.task('uglify-page', ['build-page','build-laya'], function(){
+	return gulp.src( path.join(distPath,'**/*.js') )
+		.pipe(uglify())
+		.pipe(gulp.dest(distPath))
+})
+
+gulp.task('publish',['uglify-page','build-res'])
+
+gulp.task('default',['build-page','build-res','build-laya'])

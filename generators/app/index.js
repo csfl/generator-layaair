@@ -98,7 +98,7 @@ module.exports = yeoman.Base.extend({
 			this.fs.extendJSON( 'package.json',	packageinfo, null, '\t' )
 
 			console.log('   copying other config files')
-			var rootfiles = ['gulpfile.js','webpack.config.js','readme.txt'];
+			var rootfiles = [ 'gulpfile.js','webpack.config.js' ];
 			for( var i = 0 ; i < rootfiles.length ; i++ ) {
 				this.fs.copy( this.templatePath( 'jsfiles/' + rootfiles[i]), this.destinationPath(rootfiles[i]) );
 			}
@@ -112,5 +112,6 @@ module.exports = yeoman.Base.extend({
 	},
 
 	install: function () {
+		this.npmInstall()
 	}
 });

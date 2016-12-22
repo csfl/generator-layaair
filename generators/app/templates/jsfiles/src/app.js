@@ -1,4 +1,6 @@
 
+import { AppInfo } from './config';
+
 (function()
 {
 	var Sprite  = Laya.Sprite;
@@ -31,5 +33,8 @@
 		txt.bold = true;
 		txt.pos(60,100);
 		Laya.stage.addChild(txt);
+
+		var info = new AppInfo();
+		console.log(info);
 	})();
 })();
