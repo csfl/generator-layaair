@@ -68,7 +68,7 @@ module.exports = yeoman.Base.extend({
 		this.fs.write(this.destinationPath('config.js'),
 			"module.exports = {\n" +
 			"\tenableTypings: false,\n" +
-			"\tlayaModules: ['laya.core','laya.webgl','laya.html'/*,'laya.plugins','laya.ani','laya.filters','laya.particle','laya.ui'*/],\n" +
+			"\tlayaModules: ['laya.core','laya.webgl','laya.html','laya.ui','laya.debugtool','matter','matter-RenderLaya'],\n" +
 			"\tlayaVersion: '" + this.props.engineversion + "'\n" +
 			"}"
 		)

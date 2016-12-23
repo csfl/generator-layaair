@@ -35,9 +35,8 @@ var buildAsync = function(files,reporter) {
 			.pipe(gulp.dest(distPath))
 			.on('finish',function(){
 				if( reporter.success )
-					fs.writeFile('build.log', utils.now() + 'build success.\r\n',{flag:'a'},function(){ resolve(); })
-				else 
-					resolve();
+					fs.writeFile('build.log', utils.now() + 'build success.\r\n',{flag:'a'})
+				resolve();
 			})
 	})
 }
@@ -135,7 +134,11 @@ gulp.task('build-page', ['build-src'], function(){
 					$('body').append('<script src="assets/' + jspath + '" language="JavaScript"></script>\n');
 				}
 			})
-			$('body').append('<script src="assets/app.js" language="JavaScript"></script>\n<script>require(["src/app"])</script>\n');
+			$('body').append(
+				'<script src="http://cdn.bootcss.com/require.js/2.3.2/require.min.js"></script>\n'+
+				'<script src="assets/app.js" language="JavaScript"></script>\n'+
+				'<script>{require(["src/app"]);require=null;define=null;}</script>\n'
+			);
 			return fs.writeFileAsync( path.join(distPath,'index.html'), $.html() )
 		})
 })
